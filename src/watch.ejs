@@ -91,6 +91,7 @@
       alert("error");
 
     var episodes = JSON.parse(JSON.stringify(anime.episodes));
+    var newTitle = (episodes[episode].title ? ' - ' + episodes[episode].title : '')
         
     function nextEpisode(){
       var newEp = (Number(episode) + 1);
@@ -110,6 +111,9 @@
       $("#fluid_video_wrapper_player").css("margin-top", "20px")
 
       $('#menuicon').css("display", "none");
+
+      $(".fp_title").css("top", "60px")
+      $(".fp_title").css("left", "20px")
 
       if(players == undefined)
         $('.tv').css('display', 'none');
@@ -156,7 +160,7 @@
         autoplay: true,
         contentType: 'video/mpeg',
         metadata: {
-          title,
+          title: anime.name + newTitle,
           creator: 'Anigiri',
           type: 'video', // can be 'video', 'audio' or 'image'
         }
@@ -187,9 +191,12 @@
       if(url.includes("m3u8")){
         $("source").attr("type", "application/x-mpegURL");
       }
+
+      
+
       var myFluidPlayer = fluidPlayer("player", {
           layoutControls: {
-          title: false,
+          title: anime.name + newTitle,
           fillToContainer: false,
           primaryColor: "#6435c9",
           autoPlay: false,
@@ -222,7 +229,8 @@
                 fullscreen: 'Fullscreen',
                 exitFullscreen: 'Exit Fullscreen',
                 miracast: 'Miracast'
-            }
+            },
+            title: anime.name
           },
           allowDownload: false,
           allowTheatre: false,
