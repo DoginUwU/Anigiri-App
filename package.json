@@ -4,7 +4,8 @@
   "main": "main.js",
   "license": "MIT",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "build": "electron-packager . --icon=Icon/AppIcon.icns --overwrite"
   },
   "devDependencies": {
     "electron": "^8.2.1"

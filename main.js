@@ -33,6 +33,7 @@ async function init () {
     width: 900,
     height: 800,
     show: true,
+    frame: false,
     icon: __dirname + 'Icon/AppIcon.icns',
     titleBarStyle: "hidden",
     webPreferences: {
