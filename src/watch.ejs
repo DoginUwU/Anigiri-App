@@ -1,0 +1,253 @@
+<%
+  /*var animes;
+  if (T.VALUE === "pt-br") {
+    animes = JSON.parse(JSON.stringify(ptBR_animes))
+  } else {
+    animes = JSON.parse(JSON.stringify(enUS_animes))
+  }
+  var anime = animes.find(x => x._id === id);
+
+  if (anime.movie) episode = 1
+  anime.eplabel = Object.getOwnPropertyNames(anime.episodes || {});*/
+
+%>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch </title>
+  <script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+    <link rel="stylesheet" href="https://cdn.fluidplayer.com/v2/current/fluidplayer.min.css" type="text/css"/>
+    <script src="https://cdn.fluidplayer.com/v2/current/fluidplayer.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js" async defer></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/search.min.js" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
+    <script src="https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
+    <script src="https://kit.fontawesome.com/4d033f0668.js" crossorigin="anonymous"></script>
+
+    <!--<script src="/js/yall.min.js"></script>
+    <script src="/js/client.js" defer></script>-->
+    <link rel="stylesheet" href="./css/style.css">
+
+    <script>if (window.module) module = window.module;</script>
+
+    <style>
+      *{
+        overflow: hidden;
+      }
+      body{
+        overflow: hidden;
+      }
+    </style>
+</head>
+<body>
+  <script asnyc defer>
+    var dlnacasts = require('dlnacasts2')();
+    var urlParams = new URLSearchParams(window.location.search);
+    var url = urlParams.get('video');
+    var episode = urlParams.get('episode');
+    var id = urlParams.get('id');
+    //const ejse = require('ejs-electron')
+    const mongoose = require("mongoose");
+    var MediaRendererClient = require('upnp-mediarenderer-client');
+    var players;
+    var animes;
+
+    <%
+      var animes;
+      animes = JSON.parse(JSON.stringify(ptBR_animes));
+        try {
+          animes.sort(function(a, b) {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+            return 0;
+         })
+        } catch (error) {
+          console.log("err");
+        }
+        animes2 = JSON.stringify(animes);
+    %>
+
+      animes = <%- animes2 %>;
+
+      var anime = animes.find(x => x._id === id);
+
+      console.log(episode);
+
+    if(url == "" || url == undefined)
+      alert("error");
+
+    var episodes = JSON.parse(JSON.stringify(anime.episodes));
+        
+    function nextEpisode(){
+      var newEp = (Number(episode) + 1);
+      console.log("./watch.ejs?video=" + episodes[newEp].video + "&episode=" + newEp + "&id=" + anime._id);
+      window.location.href = "./watch.ejs?video=" + episodes[newEp].video + "&episode=" + newEp + "&id=" + anime._id;
+    }
+
+    setInterval(function (){
+      if($('.fade_out').length == 0 || $('.exit').is(":hover") || $('.tv').is(":hover") || $('.next-ep').is(":hover")){
+        $('.hideOnPlayer').css('display', 'block');
+      }else{
+        $('.hideOnPlayer').css('display', 'none');
+      }
+      if(players.length <= 0)
+        $('.tv').css('display', 'none!important');
+      else
+        $('.tv').css('display', 'block');
+    }, 500)
+
+    function showTV(){
+      
+      $('.tvs').toggle();
+      $('.tvs').html('');
+
+      /*<% 
+        var players = ejse.data('tv');
+        var players_ = JSON.stringify(players);
+
+        //player.play('https://cdn.discordapp.com/attachments/560622933995683851/697928603257798787/VHS_20200205_06364100.mp4', {title: 'Doguin', type: 'video/mp4'});
+      %>
+      var players = JSON.parse('<%- players_ %>');*/
+
+      
+      
+      for(var i in players){
+        $('.tvs').append("<p onclick='SendToTV(this)' data-value=" + i + ">" + players[i].name + "</p>")
+      }
+    }
+
+    function SendToTV(e){
+      var id = e.getAttribute("data-value");
+
+      console.log(players[id]);
+      
+      /*players[id].play(url, {
+        title: 'NENHUM',
+        type: 'application/x-mpegURL'
+      })*/
+
+      var title = anime.name;
+
+      var client = new MediaRendererClient(players[id].xml);
+      var options = { 
+        autoplay: true,
+        contentType: 'video/mpeg',
+        metadata: {
+          title,
+          creator: 'John Doe',
+          type: 'video', // can be 'video', 'audio' or 'image'
+        }
+      };  
+
+      client.load(url, options, function(err, result) {
+        if(err){
+          alert("Não foi possivel conectar-se na tv!")
+          console.log(err);
+        }
+        console.log('playing ...');
+      });
+    }
+
+    dlnacasts.on('update', function (player) {
+        players = dlnacasts.players;
+    })  
+    
+    $(window).on('load', function() {
+      dlnacasts.update();
+      $("source").attr("src", url);
+
+      if(Object.keys(episodes).length == Number(episode)){
+        $('.next-ep').css('display', 'none!important');
+        document.getElementById("next-ep").style.display = "none";
+      }
+
+      if(url.includes("m3u8")){
+        $("source").attr("type", "application/x-mpegURL");
+      }
+      var myFluidPlayer = fluidPlayer("player", {
+          layoutControls: {
+          title: false,
+          fillToContainer: false,
+          primaryColor: "#6435c9",
+          autoPlay: false,
+          preload: true,
+          playButtonShowing: true,
+          playPauseAnimation: true,
+          playbackRateEnabled: false,
+          mute: false,
+          logo: {
+            imageUrl: '',
+            position: 'top left',
+            clickUrl: null,
+            opacity: 1,
+            mouseOverImageUrl: null,
+            imageMargin: '2px',
+            hideWithControls: false,
+            showOverAds: false
+          },
+          htmlOnPauseBlock: {
+            html: null,
+            height: null,
+            width: null
+          },
+          layoutControls: {
+            captions: {
+                play: 'Play',
+                pause: 'Pause',
+                mute: 'Mute',
+                unmute: 'Unmute',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit Fullscreen',
+                miracast: 'Miracast'
+            }
+          },
+          allowDownload: false,
+          allowTheatre: false,
+          playbackRateEnabled: true,
+          controlBar: {
+            autoHide: true,
+            autoHideTimeout: 3,
+            animated: true
+		      },
+            },
+            
+        });
+
+        myFluidPlayer.on('ended', event => {
+          
+        });
+        myFluidPlayer.on('pause', event => {
+          $('#player_fluid_state_button').css("margin-left", "2px");
+        });
+        
+        myFluidPlayer.on('play', event => {
+          $('#player_fluid_state_button').css("margin-left", "23px");
+        });
+
+
+    });
+  </script>
+   <video id="player" style="width: 100%; height: 97.5%"> 
+    <source id="source" src="" type="video/mp4"/> 
+  </video>
+  <div class="hideOnPlayer" id="hideOnPlayer">
+    <a href="./index.ejs"><div class="exit"><i class="fas fa-times fa-2x"></i></div></a>
+    <div class="next-ep" id="next-ep" onclick="nextEpisode()"><i class="fas fa-arrow-right fa-2x"></i></div>
+    <div class="tv" onclick="showTV()">
+      <i class="fas fa-tv fa-2x"></i>
+      <div class="tvs">
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anigiri</title>
+
+  <link rel="stylesheet" href="../photon/css/photon.min.css">
+</head>
+<body>
+  <%- include("./partials/header") %>
+  <div class="all">
+    <script>
+      <%
+        var animes;
+        var animes_length;
+        var animes2;
+        var page = 1;
+  
+        animes_length = Object.keys(ptBR_animes).length;
+        animes = JSON.parse(JSON.stringify(ptBR_animes))
+  
+        var animesObj = [];
+        for (var i in animes) {
+          animesObj.push({
+            "_id": animes[i]._id,
+            "name": animes[i].name,
+            "description": animes[i].description == "undefined" ? "" : animes[i].description,
+            "image": animes[i].image,
+            "ongoing": animes[i].ongoing ? true : false,
+            "movie": animes[i].movie ? true : false,
+            "ova": animes[i].ova ? true : false,
+            "episodes": animes[i].episodes
+          })
+        }
+        try {
+          animes.sort(function(a, b) {
+          if (a.name < b.name) {
+            return -1;
+          }
+          if (a.name > b.name) {
+            return 1;
+          }
+            return 0;
+         })
+        } catch (error) {
+          console.log("err");
+        }
+        
+  
+        animes2 = JSON.stringify(animes);
+        //ejse.data('animes', JSON.stringify(animes));
+      %>
+      var animes = <%- animes2 %>
+  
+      $(document).ready(function() {
+        $('.all').appendTo('.container-after-titlebar');
+      });
+  
+      function OpenAnime(e){
+        $('.ui.basic.modal').modal('show');
+        var id = e.getAttribute('data-anime');
+  
+        $('#anime_name').text(animes[id].name);
+        $('#anime_description').text(animes[id].description);
+        $('#anime_image').attr('src', animes[id].image);
+        $('.episodes').html('');
+  
+        var episodes = JSON.parse(JSON.stringify(animes[id].episodes));
+        
+        for(var i in episodes){
+          var title = "<strong>Episódio " + i + " </strong>";
+  
+          if(episodes[i].title != "" && episodes[i].title != undefined)
+            title = "<strong>Episódio " + i + "</strong>  -  " + episodes[i].title;
+  
+          $('.episodes').append("<a onclick='goToEpisode('" + episodes[i].title + "')' href='./watch.ejs?video=" + episodes[i].video + "&episode=" + i +"&id=" + animes[id]._id +"'><div class='episode ep_" + i + "'><p>" + title + "</p></div>");
+        }
+      }
+
+      function goToEpisode(title){
+        
+      }
+
+      function reloadPage(){
+        location.reload();
+      }
+    </script>
+  
+    <% if (animes_length <= 0) { %>
+    <h1 style="position: absolute; transform: translate(-50%, -50%); left: 50%; top: 50%;">
+      ERROR [01]: ERRO NO CARREGAMENTO, POR FAVOR <a onclick="reloadPage()">CLICK AQUI</a>
+    </h1>
+    <% } %>
+  
+    <% 
+      var o = Number(page || 1) * 20 - 20;
+      for (var i = /*(Number(page || 1) * 20 - 20)*/ 0; i < animes_length; i++) {
+        //if (o === Number(page || 1) * 20) break;
+        o++;
+    %>
+          <div data-anime='<%- i %>' onclick="OpenAnime(this)" class="anime">
+          <img src='<%- animes[i].image %>'>
+            <div class="description">
+              <p><%- animes[i].name %></p>
+            </div>
+          </div>
+    <% } %>
+  
+  
+    <div class="ui basic modal animeView">
+      <div class="header">
+        <script>
+          function ChangeAnimeInfo(){
+            
+          }
+        </script>
+        <p id="anime_name">a</p>
+        <img id="anime_image" src='' alt="">  
+      </div>
+      <div class="info">
+        <p id="anime_description"></p>  
+        <div class="episodes">
+          
+        </div>
+      </div>
+    </div>
+   
+  </div>
+  <script src="../renderer.js"></script>
+</body>
+</html>

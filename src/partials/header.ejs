@@ -1,0 +1,44 @@
+<script>if (typeof module === 'object') {window.module = module; module = undefined;}</script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+<script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js" async defer></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/components/search.min.js" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
+<script src="https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
+<script src="https://kit.fontawesome.com/4d033f0668.js" crossorigin="anonymous"></script>
+
+<!--<script src="/js/yall.min.js"></script>
+<script src="/js/client.js" defer></script>-->
+<link rel="stylesheet" href="./css/style.css">
+
+<i class="fas fa-bars fa-2x menuicon" id="menuicon"></i>
+
+<script>
+  $('.menuicon').click(data => {
+    $('.ui.sidebar').sidebar('toggle');
+    $('.pusher').attr('style', 'background: #222');
+  });
+  $('.ui.sidebar').sidebar('attach events', '#menuicon'); 
+</script>
+
+<div class="ui left sidebar inverted vertical menu">
+  <a class="item">
+    <i class="fas fa-home"></i>
+    Animes
+  </a>
+</div>
+
+<script>
+  const customTitlebar = require('custom-electron-titlebar');
+  
+  let MyTitleBar = new customTitlebar.Titlebar({
+    backgroundColor: customTitlebar.Color.fromHex('#000'),
+    shadow: true
+  })
+
+  MyTitleBar.updateTitle('Anigiri');
+</script>
+
+<script>if (window.module) module = window.module;</script>
