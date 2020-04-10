@@ -6,16 +6,24 @@
   <title>Anigiri</title>
 
   <link rel="stylesheet" href="../photon/css/photon.min.css">
+  
 </head>
 <body>
   <%- include("./partials/header") %>
-  <div class="all">
+  <div class="pusher" id="pusher">
     <script>
+      const {getCurrentWindow, globalShortcut} = require('electron').remote;
+      var urlParams = new URLSearchParams(window.location.search);
+      var page = (Number(urlParams.get('p')) || 1);
+      var maxAnimesPerPage = 60;
+
+      setInterval(function(){
+        $('.titlebar').appendTo('body');
+      }, 500);
       <%
         var animes;
         var animes_length;
         var animes2;
-        var page = 1;
   
         animes_length = Object.keys(ptBR_animes).length;
         animes = JSON.parse(JSON.stringify(ptBR_animes))
@@ -54,7 +62,16 @@
       var animes = <%- animes2 %>
   
       $(document).ready(function() {
-        $('.all').appendTo('.container-after-titlebar');
+        $('.pusher').appendTo('.container-after-titlebar');
+        $('.titlebar').appendTo('body');
+
+        var startFrom = (page) * maxAnimesPerPage; // page * animes por pagina
+        var totalPages = Math.ceil(((<%- animes_length %> + maxAnimesPerPage) - startFrom) / maxAnimesPerPage);
+
+        if((page - 1) > 0)
+        $('#pagesbtn').append("<a href='./index.ejs?p="+ (page - 1) +"' id='previousPage'><i class='fas fa-chevron-circle-left fa-3x'></i></a>");
+        if((page + 1) <= totalPages)
+        $('#pagesbtn').append("<a href='./index.ejs?p="+ (page + 1) +"' id='nextPage'><i class='fas fa-chevron-circle-right fa-3x'></i></a>");
       });
   
       function OpenAnime(e){
@@ -83,8 +100,14 @@
       }
 
       function reloadPage(){
-        location.reload();
+        getCurrentWindow().reload();
       }
+      globalShortcut.register('F5', reloadPage);
+      globalShortcut.register('CommandOrControl+R', reloadPage);
+      window.addEventListener('beforeunload', ()=>{
+        globalShortcut.unregister('F5', reloadPage);
+        globalShortcut.unregister('CommandOrControl+R', reloadPage);
+      })
     </script>
   
     <% if (animes_length <= 0) { %>
@@ -92,21 +115,33 @@
       ERROR [01]: ERRO NO CARREGAMENTO, POR FAVOR <a onclick="reloadPage()">CLICK AQUI</a>
     </h1>
     <% } %>
-  
-    <% 
-      var o = Number(page || 1) * 20 - 20;
-      for (var i = /*(Number(page || 1) * 20 - 20)*/ 0; i < animes_length; i++) {
-        //if (o === Number(page || 1) * 20) break;
-        o++;
-    %>
-          <div data-anime='<%- i %>' onclick="OpenAnime(this)" class="anime">
-          <img src='<%- animes[i].image %>'>
-            <div class="description">
-              <p><%- animes[i].name %></p>
-            </div>
-          </div>
-    <% } %>
-  
+    <div class="aspectwrapper">
+      <div class="container" id="container">
+      <script>
+        var animes_length = <%- animes_length %>
+
+        var o = page * maxAnimesPerPage - maxAnimesPerPage;
+        for (var i = (page * maxAnimesPerPage - maxAnimesPerPage); i < animes_length; i++) {
+          if (o === page * maxAnimesPerPage) break;
+          o++;
+          
+          $('.container').append("<div data-anime='"+ i +"' onclick='OpenAnime(this)' class='anime post'>" + 
+            "<img class='lazy' loading='lazy' src='https://cdn.discordapp.com/attachments/568864759085006853/691822486282567761/1_yVomsubMN2iDuzi9i2Zzyw.gif' data-src='" + animes[i].image +"'>" + 
+            "<div class='description'>" + 
+            "<p>" + animes[i].name +
+            ""+ (animes[i].ongoing ? '<span class="ui red horizontal label">Em progesso</span>' : '') +"" +
+            ""+ (animes[i].ova ? '<span class="ui green horizontal label">OVA</span>' : '') +"" +
+            ""+ (animes[i].movie ? '<span class="ui blue horizontal label">Filme</span>' : '') +"" +
+            "</p>" +
+            "</div>")
+        }
+      </script>
+      </div>
+    </div>
+
+    <div id="pagesbtn">
+      
+    </div>
   
     <div class="ui basic modal animeView">
       <div class="header">

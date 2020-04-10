@@ -43,9 +43,13 @@
       body{
         overflow: hidden;
       }
+      .menuicon{
+        display: none;
+      }
     </style>
 </head>
 <body>
+  <%- include("./partials/header") %>
   <script asnyc defer>
     var dlnacasts = require('dlnacasts2')();
     var urlParams = new URLSearchParams(window.location.search);
@@ -100,10 +104,19 @@
       }else{
         $('.hideOnPlayer').css('display', 'none');
       }
-      if(players.length <= 0)
-        $('.tv').css('display', 'none!important');
+
+      $("#fluid_video_wrapper_player").css("height", "97.5%")
+      $("#fluid_video_wrapper_player").css("width", "100%")
+      $("#fluid_video_wrapper_player").css("margin-top", "20px")
+
+      $('#menuicon').css("display", "none");
+
+      if(players == undefined)
+        $('.tv').css('display', 'none');
       else
         $('.tv').css('display', 'block');
+
+      dlnacasts.update();
     }, 500)
 
     function showTV(){
@@ -144,7 +157,7 @@
         contentType: 'video/mpeg',
         metadata: {
           title,
-          creator: 'John Doe',
+          creator: 'Anigiri',
           type: 'video', // can be 'video', 'audio' or 'image'
         }
       };  
@@ -227,7 +240,7 @@
           
         });
         myFluidPlayer.on('pause', event => {
-          $('#player_fluid_state_button').css("margin-left", "2px");
+          $('#player_fluid_state_button').css("margin-left", "17px");
         });
         
         myFluidPlayer.on('play', event => {

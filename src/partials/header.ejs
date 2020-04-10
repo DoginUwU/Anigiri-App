@@ -8,6 +8,7 @@
 <script src="https://cdn.jsdelivr.net/npm/lozad/dist/lozad.min.js"></script>
 <script src="https://polyfill.io/v2/polyfill.min.js?features=IntersectionObserver"></script>
 <script src="https://kit.fontawesome.com/4d033f0668.js" crossorigin="anonymous"></script>
+<script src="./others/yall.min.js"></script>
 
 <!--<script src="/js/yall.min.js"></script>
 <script src="/js/client.js" defer></script>-->
@@ -16,18 +17,67 @@
 <i class="fas fa-bars fa-2x menuicon" id="menuicon"></i>
 
 <script>
+  document.addEventListener("DOMContentLoaded", yall);
+  const { shell } = require('electron')
   $('.menuicon').click(data => {
+    $('.titlebar').appendTo('body');
     $('.ui.sidebar').sidebar('toggle');
+    $('.titlebar').appendTo('body');
     $('.pusher').attr('style', 'background: #222');
   });
-  $('.ui.sidebar').sidebar('attach events', '#menuicon'); 
+
+  <% var animesTitle = []; %>
+  <% var animes = JSON.parse(JSON.stringify(ejse.data('ptBR_animes'))) 
+  %>
+  <% for (var i in animes) { 
+    //console.log(animes[i].episodes[1].video);
+    %>
+  <% animesTitle.push({ "title": animes[i].name + (animes[i].ongoing == true ? " <span class='ui tiny red horizontal label' style='vertical-align: -.02em;'>Em progresso</span>" : "") + (animes[i].movie == true ? " <span class='ui tiny blue horizontal label' style='vertical-align: -.02em;'>Filme</span>" : "") + (animes[i].ova == true ? " <span class='ui tiny green horizontal label' style='vertical-align: -.02em;'>OVA</span>" : ""), "movie": animes[i].movie ? true : false, "_id": animes[i]._id, "episode": animes[i].episodes[1].video }) %>
+  <% } %>
+
+  var animesTitleObj = <%- JSON.stringify(animesTitle) %>;
+  
+
+  $(window).on('load', function() {
+    $(".ui.left.icon.input.search").removeClass("disabled");
+    $(".ui.left.icon.input.search").find("input").attr("placeholder", "Pesquisar...");
+    $('.ui.left.icon.input.search').search({
+      source: animesTitleObj,
+      //./watch.ejs?video=" + episodes[i].video + "&episode=" + i +"&id=" + animes[id]._id +"'
+      onSelect: function(a) { window.location = `./watch.ejs?video=${a.episode}&episode=1&id=${a._id}` }
+    });
+  });
+
+  function openLink(link){
+    shell.openExternal(link)
+  }
 </script>
 
 <div class="ui left sidebar inverted vertical menu">
-  <a class="item">
+  <p style="margin-top: 40px; margin-left: 20px;">Anigiri - 0.0.2(BETA)</p>
+  <a href="./index.ejs?p=1" class="item" style="margin-top: 0px;">
     <i class="fas fa-home"></i>
     Animes
   </a>
+  <a onclick="openLink('https://discord.gg/JrhAJFj')" class="item" style="margin-top: 0px;">
+    <i class="fab fa-discord"></i>
+    Discord
+  </a>
+  <a onclick="openLink('https://www.patreon.com/anigiri')" class="item" style="margin-top: 0px;">
+    <i class="fab fa-patreon"></i>
+    Doe-nos
+  </a>
+  <a href="./dmca.ejs" class="item" style="margin-top: 0px;">
+    <i class="fa fa-exclamation-triangle"></i>
+    DMCA
+  </a>
+  <a class="item">
+      <div class="ui disabled left icon input search">
+        <input type="text" class="prompt" placeholder="Carregando..."/>
+        <i class="fas fa-search outline" style="color: black; position: absolute; margin-top: 10px; margin-left: 10px"></i>
+        <div class="results" style="max-width: 230px;"></div>
+      </div>
+    </a>
 </div>
 
 <script>

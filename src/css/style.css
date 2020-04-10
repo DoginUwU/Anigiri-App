@@ -17,6 +17,50 @@ margin-top: 20px;
 }
 
 
+.episodes::-webkit-scrollbar{
+  width: 7px;
+}
+
+.episodes::-webkit-scrollbar-thumb{
+  background: #7300c3;
+  border-radius: 10px;
+}
+.episodes::-webkit-scrollbar-thumb:hover{
+  background: #580096;
+}
+
+
+body::-webkit-scrollbar{
+  width: 7px;
+}
+
+body::-webkit-scrollbar-thumb{
+  background: #7300c3;
+  border-radius: 10px;
+}
+body::-webkit-scrollbar-thumb:hover{
+  background: #580096;
+}
+
+
+
+.pushable{
+  overflow: auto;
+}
+
+.pushable::-webkit-scrollbar{
+  width: 7px;
+}
+
+.pushable::-webkit-scrollbar-thumb{
+  background: #7300c3;
+  border-radius: 10px;
+}
+.pushable::-webkit-scrollbar-thumb:hover{
+  background: #580096;
+}
+
+
 .menuicon{
 color: #FFF;
 padding: 10px;
@@ -30,16 +74,28 @@ background: linear-gradient(140deg, rgba(0,0,0,1) 0%, rgba(0,0,0,1) 58%, rgba(0,
 cursor: pointer;
 }
 
+.aspectwrapper {
+  display: inline-block;
+  width: 100%;
+  position: relative;
+}
+
+.aspectwrapper::after {
+  display: block;
+  content: '';
+  width: 100%;
+}
+
 .anime{
   width: 150px;
   height: 200px;
   text-align: center;
   display: inline-block;
-  float: left;
-  margin: 5px;
+  margin: 2px;
   line-height :30px; 
   vertical-align: baseline;
   cursor: pointer;
+  position: relative;
 }
 
 .anime:hover .description{
@@ -68,8 +124,8 @@ cursor: pointer;
 }
 
 .anime img{
-  width: 150px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 
@@ -102,7 +158,7 @@ cursor: pointer;
   width: 300px;
   height: 400px;
   float: right;
-  overflow: scroll;
+  overflow: auto;
   text-overflow: ellipsis;
   box-shadow: 0px 0px 5px 0px rgba(255,255,255,1);
 }
@@ -159,6 +215,14 @@ a:hover{
   cursor: pointer;
 }
 
+.hideOnPlayer .next-ep:hover{
+  color: blueviolet;
+}
+
+.hideOnPlayer .tv:hover{
+  color: blueviolet;
+}
+
 .tvs{
   width: 100px;
   background-color: #000;
@@ -168,4 +232,20 @@ a:hover{
 
 .tvs p{
   padding: 10px;
+}
+
+#previousPage{
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  text-shadow: 0px 0px 10px black;
+  z-index: 10;
+}
+
+#nextPage{
+  position: fixed;
+  bottom: 20px;
+  right: 30px;
+  text-shadow: 0px 0px 10px black;
+  z-index: 10;
 }
