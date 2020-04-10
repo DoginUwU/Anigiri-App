@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "start": "electron .",
-    "build": "electron-packager . --icon=Icon/AppIcon.icns --overwrite"
+    "build": "electron-packager . --icon=Icon/AppIcon.icns --asar=true --arch=x64 --overwrite"
   },
   "devDependencies": {
     "electron": "^8.2.1"
