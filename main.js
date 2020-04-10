@@ -34,7 +34,7 @@ async function init () {
     height: 800,
     show: true,
     frame: false,
-    icon: __dirname + 'Icon/AppIcon.icns',
+    icon: __dirname + 'Icon/AppIcon.ico',
     titleBarStyle: "hidden",
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
