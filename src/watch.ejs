@@ -166,7 +166,7 @@
         }
       };  
 
-      client.load(url, options, function(err, result) {
+      client.load(episodes[episode].video, options, function(err, result) {
         if(err){
           alert("Não foi possivel conectar-se na tv!")
           console.log(err);

@@ -1,0 +1,19 @@
+{
+  "verifyConfig": true,  
+  "archiveOutput": true,   
+  "platforms":  [
+    "darwin",
+    "win32",
+    "linux"
+  ],               
+  "uglifyList": [],               
+  "ignoreList": [],               
+  "versionString":               
+  {
+      "CompanyName": "Anigiri",
+      "FileDescription": "Watch your animes on tv or desktop.",
+      "OriginalFilename": "anigiri.exe",
+      "ProductName": "Anigiri Desktop",
+      "InternalName": "Anigiri Desktop"
+  }
+}
