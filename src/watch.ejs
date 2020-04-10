@@ -85,13 +85,13 @@
 
       var anime = animes.find(x => x._id === id);
 
-      console.log(episode);
+      var episodes = JSON.parse(JSON.stringify(anime.episodes));
+      var newTitle = (episodes[episode].title ? ' - ' + episodes[episode].title : '')
 
-    if(url == "" || url == undefined)
-      alert("error");
+      if(episodes[episode].video == "" || episodes[episode].video == undefined)
+        alert("error");
 
-    var episodes = JSON.parse(JSON.stringify(anime.episodes));
-    var newTitle = (episodes[episode].title ? ' - ' + episodes[episode].title : '')
+   
         
     function nextEpisode(){
       var newEp = (Number(episode) + 1);
@@ -119,25 +119,25 @@
         $('.tv').css('display', 'none');
       else
         $('.tv').css('display', 'block');
-
-      dlnacasts.update();
     }, 500)
+
+    setInterval(function(){
+      dlnacasts.update();
+      dlnacasts.on('update', function (player) {
+        players = dlnacasts.players;
+        reloadTVS();
+      })  
+    }, 4000);
 
     function showTV(){
       
       $('.tvs').toggle();
+      reloadTVS();
+    }
+
+    function reloadTVS(){
       $('.tvs').html('');
-
-      /*<% 
-        var players = ejse.data('tv');
-        var players_ = JSON.stringify(players);
-
-        //player.play('https://cdn.discordapp.com/attachments/560622933995683851/697928603257798787/VHS_20200205_06364100.mp4', {title: 'Doguin', type: 'video/mp4'});
-      %>
-      var players = JSON.parse('<%- players_ %>');*/
-
-      
-      
+          
       for(var i in players){
         $('.tvs').append("<p onclick='SendToTV(this)' data-value=" + i + ">" + players[i].name + "</p>")
       }
@@ -168,27 +168,24 @@
 
       client.load(episodes[episode].video, options, function(err, result) {
         if(err){
-          alert("Não foi possivel conectar-se na tv!")
           console.log(err);
+          players[id].play(episodes[episode].video, {title: anime.name + newTitle, type: 'video/mpeg'})
+          return alert("Não foi possivel conectar-se na tv!")
         }
         console.log('playing ...');
       });
     }
 
-    dlnacasts.on('update', function (player) {
-        players = dlnacasts.players;
-    })  
-    
     $(window).on('load', function() {
       dlnacasts.update();
-      $("source").attr("src", url);
+      $("source").attr("src", episodes[episode].video);
 
       if(Object.keys(episodes).length == Number(episode)){
         $('.next-ep').css('display', 'none!important');
         document.getElementById("next-ep").style.display = "none";
       }
 
-      if(url.includes("m3u8")){
+      if(episodes[episode].video.includes("m3u8")){
         $("source").attr("type", "application/x-mpegURL");
       }
 
