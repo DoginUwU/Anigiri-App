@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DMCA</title>
+  <link rel="stylesheet" href="../photon/css/photon.min.css">
+  <style>
+    *{
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <%- include("./partials/header") %>
+  <script>
+      const Store = require('electron-store');
+      const store = new Store();
+
+     setInterval(function(){
+        $('.titlebar').appendTo('body');
+      }, 500);
+      $(document).ready(function() {
+        $('.pusher').appendTo('.container-after-titlebar');
+        $('.titlebar').appendTo('body');
+      });
+
+      (function($) {
+        $.fn.inputFilter = function(inputFilter) {
+          return this.on("input keydown keyup mousedown mouseup select contextmenu drop", function() {
+            if (inputFilter(this.value)) {
+              this.oldValue = this.value;
+              this.oldSelectionStart = this.selectionStart;
+              this.oldSelectionEnd = this.selectionEnd;
+            } else if (this.hasOwnProperty("oldValue")) {
+              this.value = this.oldValue;
+              this.setSelectionRange(this.oldSelectionStart, this.oldSelectionEnd);
+            } else {
+              this.value = "";
+            }
+          });
+        };
+      }(jQuery));
+
+      $(document).ready(function() {
+        $("#defaultmbtv").inputFilter(function(value) {
+          return /^\d*$/.test(value);   
+        });
+        
+        $("#defaultmbtv").val(store.get("MBtoWaitForConnectOnTV"));
+        document.getElementById("setNotify").checked = store.get("enableNotify");
+      });
+
+      function SaveConfigurations(){
+        store.set("MBtoWaitForConnectOnTV", $("#defaultmbtv").val());
+        store.set("enableNotify", document.getElementById("setNotify").checked);
+        
+        alert("Configurações salvas");
+        window.location.href = "index.ejs";
+      }
+      function ResetConfigurations(){
+        store.set("MBtoWaitForConnectOnTV", 10);
+        store.set("enableNotify", true);
+
+        alert("Configurações Resetadas");
+        window.location.href = "index.ejs";
+      }
+  </script>
+  <div class="pusher" id="pusher">
+    <div id="a">
+      <div class="ui card" style="left: 50%; top: 50%; position: absolute; transform: translate(-50%, -50%); width: 700px;">
+        <div class="content" style="color: #000">
+
+          <div class="ui input">
+            <div class="ui right pointing label">
+              Tamanho minimo de arquivo (MB) para ser enviado para TV
+            </div>
+            <input type="number" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" maxlength="4" id="defaultmbtv" placeholder="Digite 0 para esperar o video baixar" style="width: 400px;">
+          </div>
+
+          
+            <div class="ui right pointing label">
+              Ativar notificações
+            </div>
+            <div class="ui toggle checkbox">
+              <input type="checkbox" id="setNotify" style="opacity: 1!important; margin-top: 10px; margin-left: 15px;">
+            </div>
+
+
+            <br><br><br><br>
+            <button onclick="SaveConfigurations()" class="ui positive button" style='position: absolute; left: 0; margin-top: -30px; margin-left: 10px;'>Salvar</button>
+            <button onclick="SaveConfigurations()" class="ui orange button" style='position: absolute; right: 0; margin-top: -30px; margin-right: 10px;'>Resetar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

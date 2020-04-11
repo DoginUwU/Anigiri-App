@@ -3,6 +3,8 @@ const path = require('path');
 const mongoose = require("mongoose");
 const ejse = require('ejs-electron');
 var fs = require('fs');
+const Store = require('electron-store');
+const store = new Store();
 //require('electron-reload')(__dirname);
 
 mongoose.connect('mongodb+srv://ElectronRead:KPADEGA8iDKNXgKN@animes-vbz1o.mongodb.net/animes', {
@@ -54,6 +56,13 @@ async function init () {
       });
     }
   });
+
+  if(!store.has("MBtoWaitForConnectOnTV")){
+    store.set("MBtoWaitForConnectOnTV", 10);
+  }
+  if(!store.has("enableNotify")){
+    store.set("enableNotify", true);
+  }
 
   let mainWindow,
     loadingScreen,

@@ -4,3 +4,4 @@ Anigiri-win32-x64
 Anigiri.zip
 dist
 *.zip
+/src/temp/*
