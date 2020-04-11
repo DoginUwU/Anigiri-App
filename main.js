@@ -8,7 +8,7 @@ const store = new Store();
 require('dotenv').config();
 //require('electron-reload')(__dirname);
 
-mongoose.connect(process.env.MONGODB, {
+mongoose.connect("mongodb+srv://ElectronRead:KPADEGA8iDKNXgKN@animes-vbz1o.mongodb.net/animes", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
