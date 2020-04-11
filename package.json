@@ -10,7 +10,7 @@
     "build2": "electron-compiler",
     "pack": "electron-builder --dir",
     "dist": "electron-builder",
-    "windows": "electron-packager . --icon=Icon/AppIcon.icns --overwrite --prune --arch=x64"
+    "windows": "electron-packager . --overwrite --asar --platform=win32 --arch=ia32 --icon=Icon/AppIcon.ico --prune --out=release-builds --version-string.CompanyName=Anigiri --version-string.FileDescription=AnigiriDesktop --version-string.ProductName=\"Anigiri\""
   },
   "build": {
     "asar": "true",
