@@ -33,17 +33,13 @@ const template = [
 
 const menu = Menu.buildFromTemplate(template);
 
+
 async function init () {
   const ptBR_animes = require("./src/schemas/pt-br_animes");
   var ptBR_result = {};
   await ptBR_animes.find({}, (err, resulted) => {
     ptBR_result = resulted;
   });
-  /*setInterval(async () => {
-    await ptBR_animes.find({}, (err, resulted) => {
-      ptBR_result = resulted;
-    });
-  }, 120000);*/
 
   ejse.data('ptBR_animes', ptBR_result);
   ejse.data('page', 1);
@@ -62,10 +58,9 @@ async function init () {
         preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: true
       }
-    };
+    }; 
 
   function createWindow () {
-  // Create the browser window.
   mainWindow = new BrowserWindow(windowParams);
 
   mainWindow.loadURL(`file://${__dirname}/src/index.ejs`)
@@ -74,12 +69,6 @@ async function init () {
 
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.show();
-
-    if (loadingScreen) {
-        let loadingScreenBounds = loadingScreen.getBounds();
-        mainWindow.setBounds(loadingScreenBounds);
-        loadingScreen.close();
-    }
 
     globalShortcut.register('f5', function() {
       console.log('f5 is pressed')
@@ -97,24 +86,15 @@ async function init () {
 
   //mainWindow.loadFile('src/index.html')
   }
-  //app.whenReady().then(createWindow);
-
-  function createLoadingScreen(){
-    loadingScreen = new BrowserWindow(Object.assign(windowParams, {parent: mainWindow}));
-    loadingScreen.loadURL(`file://${__dirname}/src/loading.ejs`);
-    loadingScreen.on('closed', () => loadingScreen = null);
-    loadingScreen.webContents.on('did-finish-load', () => {
-        loadingScreen.show();
-    });
-  }
+  app.whenReady().then(createWindow);
 
   app.on('ready', () => {
-    createWindow();
-    createLoadingScreen();
+    //createWindow();
+    //console.log("a");
   })
 
   app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') app.quit()
+    app.quit()
   })
 
   app.on('activate', function () {

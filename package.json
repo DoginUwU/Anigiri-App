@@ -9,7 +9,8 @@
     "build": "electron-packager . --icon=Icon/AppIcon.icns --asar --prune --arch=x64 --overwrite",
     "build2": "electron-compiler",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "windows": "electron-packager . --icon=Icon/AppIcon.icns --overwrite --prune --arch=x64"
   },
   "build": {
     "asar": "true",

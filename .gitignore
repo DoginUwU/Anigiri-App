@@ -3,3 +3,4 @@ Anigiri-darwin-x64
 Anigiri-win32-x64
 Anigiri.zip
 dist
+*.zip

@@ -123,11 +123,12 @@
 
     setInterval(function(){
       dlnacasts.update();
-      dlnacasts.on('update', function (player) {
+    }, 4000);
+
+    dlnacasts.on('update', function (player) {
         players = dlnacasts.players;
         reloadTVS();
       })  
-    }, 4000);
 
     function showTV(){
       
