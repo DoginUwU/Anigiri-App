@@ -1,4 +1,5 @@
 # Anigiri-App
+![Popcorn Time](https://cdn.discordapp.com/attachments/675593865901637642/698224337026547733/unknown.png)
 ## Sobre
 Anigiri Desktop (Anigiri-App) é um aplicativo feito em eletron com o objetivo principal de transmitir medias do site original para a tv via DLNA
 
