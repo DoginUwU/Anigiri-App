@@ -5,3 +5,4 @@ Anigiri.zip
 dist
 *.zip
 /src/temp/*
+.env

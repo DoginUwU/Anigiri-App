@@ -5,9 +5,10 @@ const ejse = require('ejs-electron');
 var fs = require('fs');
 const Store = require('electron-store');
 const store = new Store();
+require('dotenv').config();
 //require('electron-reload')(__dirname);
 
-mongoose.connect('mongodb+srv://ElectronRead:KPADEGA8iDKNXgKN@animes-vbz1o.mongodb.net/animes', {
+mongoose.connect(process.env.MONGODB, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
