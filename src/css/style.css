@@ -181,9 +181,37 @@ cursor: pointer;
 
 .hideOnPlayer{
   color: #FFF;
-  z-index:300000;
+  z-index:299999;
   text-decoration: none;
   
+}
+
+.statusToTV{
+  z-index:300000;
+  text-decoration: none;
+  background-color: rgba(0,0,0,0.7);
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  margin: 0 auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.statusToTV .content{
+  margin-top: 200px;
+}
+
+.statusToTV .content .progress{
+  left: 50%;
+  top: 70%;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  color: #FFF;
+  background: rgba(0,0,0,4);
+  width: 70%;
+  height: 20px;
 }
 
 a{
@@ -193,6 +221,8 @@ a{
 a:hover{
   color: blueviolet;
 }
+
+
 
 .hideOnPlayer .exit{
   position: absolute;

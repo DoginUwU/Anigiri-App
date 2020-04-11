@@ -16,9 +16,18 @@
       var urlParams = new URLSearchParams(window.location.search);
       var page = (Number(urlParams.get('p')) || 1);
       var maxAnimesPerPage = 60;
+      const client = require('discord-rich-presence')('680916558171996170');
 
       setInterval(function(){
         $('.titlebar').appendTo('body');
+
+        client.updatePresence({
+          state: 'Anigiri',
+          details: 'Procurando anime...',
+          largeImageKey: 'logo_anigiri',
+          smallImageKey: 'logo_anigiri',
+          instance: true,
+        });
       }, 500);
       <%
         var animes;

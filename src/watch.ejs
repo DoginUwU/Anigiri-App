@@ -59,8 +59,15 @@
     //const ejse = require('ejs-electron')
     const mongoose = require("mongoose");
     var MediaRendererClient = require('upnp-mediarenderer-client');
+    var fs = require('fs');
+    var ip = require('ip');
+    const express = require('express')
+    const app = express() ;
+    const request = require('request');
+    var ffmpeg = require('ffmpeg');
     var players;
     var animes;
+    var client = null;
 
     <%
       var animes;
@@ -123,7 +130,7 @@
 
     setInterval(function(){
       dlnacasts.update();
-    }, 4000);
+    }, 1000);
 
     dlnacasts.on('update', function (player) {
         players = dlnacasts.players;
@@ -144,22 +151,159 @@
       }
     }
 
-    function SendToTV(e){
+    var segments = 0;
+    var totalSegments = 0;
+    var downloaded = 0;
+    var downloadedIsFinish = false;
+    var fileSize = 0;
+    var statusTV;
+    const m3u8stream = require('m3u8stream');
+    var fs = require("fs");
+    var stream;
+    var checkSizeFileStream;
+    var share = false;
+
+    function cancelTV(){
+      fs.unlinkSync(__dirname + "/temp/"+ anime._id +".mp4");
+      segments = 0;
+      totalSegments = 0;
+      downloaded = 0;
+      downloadedIsFinish = false;
+      fileSize = 0;
+      statusTV = "";
+      stream.end();
+      clearInterval(checkSizeFileStream);
+    }
+
+    async function SendToTV(e){
+      if(share) return;
       var id = e.getAttribute("data-value");
+      var url_video = episodes[episode].video;
+      var link = url_video.replace("playlist", "chunk");
 
       console.log(players[id]);
-      
-      /*players[id].play(url, {
-        title: 'NENHUM',
-        type: 'application/x-mpegURL'
-      })*/
-
       var title = anime.name;
 
-      var client = new MediaRendererClient(players[id].xml);
+      if(anime.episodes[episode].video.slice(anime.episodes[episode].video.lastIndexOf(".")) == ".m3u8"){
+        var fileExists;
+        fs.access(__dirname + "/temp/"+ anime._id +".mp4", fs.F_OK, (err) => {
+          if (err) {
+            fileExists = false;
+            return;
+          }
+          fileExists = true;
+        });
+
+        if(fileExists){
+          setInterval(function(){
+            var stats = fs.statSync(__dirname + "/temp/"+ anime._id +".mp4");
+            var fileSizeInBytes = stats["size"];
+            fileSize = fileSizeInBytes / 1000000.0;
+          }, 500)
+          if(fileSize > 10){
+            downloadedIsFinish = true;
+            statusTV = "Iniciando TV";
+            return runVideoInternal(id);
+          }
+          else{
+            downloadedIsFinish = false;
+            statusTV = "";
+            return fs.unlinkSync(__dirname + "/temp/"+ anime._id +".mp4");
+          }
+        }else{
+          checkSizeFileStream = setInterval(function(){
+            var stats = fs.statSync(__dirname + "/temp/"+ anime._id +".mp4");
+            var fileSizeInBytes = stats["size"];
+            fileSize = fileSizeInBytes / 1000000.0;
+          }, 500)
+
+          stream = m3u8stream(link, {
+            parser: "m3u8",
+            highWaterMark: 100
+          });
+            stream.pipe(fs.createWriteStream(__dirname + "/temp/"+ anime._id +".mp4"));
+
+            stream.on('progress', (segment, totalSegments, downloaded) => {
+              this.segments = segment.num;
+              this.totalSegments = totalSegments;
+              this.downloaded = downloaded;
+
+              if(!share){
+                if((downloaded / 1024 / 1024).toFixed(2) > 10){
+                  runVideoInternal(id);
+                  share = true;
+                }
+              }
+
+              console.log(
+                `${segment.num} of ${totalSegments} segments ` +
+                `(${(segment.num / totalSegments * 100).toFixed(2)}%) ` +
+                `${(downloaded / 1024 / 1024).toFixed(2)}MB downloaded`);
+            });
+          setInterval(function(){
+            /*if(!downloadedIsFinish && segments >= totalSegments)
+              console.log("%c Download Concluido!! Aguarde a compilação dos arquivos!", "color: green; background-color: black;");
+              if(share){
+                downloadedIsFinish = true;
+                return;
+              }
+              runVideoInternal(id)
+              downloadedIsFinish = true;*/
+          }, 1000);
+        }
+      }else{
+          //request(episodes[episode].video).pipe(fs.createWriteStream(__dirname + '/temp/anime.m3u8'))
+          app.get('/', async function (req, res) {
+            const x = request(episodes[episode].video)
+            req.pipe(x)
+            x.pipe(res)
+          })
+          SendFileToTV(id);
+      }  
+    }
+
+    function runVideoInternal(id){
+      if(share) return;
+      app.get('/', async function (req, res) {
+          const path = __dirname + "/temp/"+ anime._id +".mp4";
+          const stat = fs.statSync(path)
+          const fileSize = stat.size
+          const range = req.headers.range
+          if (range) {
+            const parts = range.replace(/bytes=/, "").split("-")
+            const start = parseInt(parts[0], 10)
+            const end = parts[1] 
+              ? parseInt(parts[1], 10)
+              : fileSize-1
+            const chunksize = (end-start)+1
+            const file = fs.createReadStream(path, {start, end})
+            const head = {
+              'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+              'Accept-Ranges': 'bytes',
+              'Content-Length': chunksize,
+              'Content-Type': 'video/mp4',
+            }
+            res.writeHead(206, head);
+            file.pipe(res);
+          } else {
+            const head = {
+              'Content-Length': fileSize,
+              'Content-Type': 'video/mp4',
+            }
+            res.writeHead(200, head)
+            fs.createReadStream(path).pipe(res)
+          }
+      })
+
+      SendFileToTV(id);
+    }
+
+    function SendFileToTV(id){
+      if(share) return;
+      client = new MediaRendererClient(players[id].xml);
       var options = { 
         autoplay: true,
-        contentType: 'video/mpeg',
+        contentType: 'video/mp4',
         metadata: {
           title: anime.name + newTitle,
           creator: 'Anigiri',
@@ -167,18 +311,41 @@
         }
       };  
 
-      client.load(episodes[episode].video, options, function(err, result) {
+      client.load('http://'+ ip.address() +':3000', options, function(err, result) {
         if(err){
-          console.log(err);
-          players[id].play(episodes[episode].video, {title: anime.name + newTitle, type: 'video/mpeg'})
-          return alert("Não foi possivel conectar-se na tv!")
+          console.log("%c " + err, 'color: red;');
+          players[id].play('http://'+ ip.address() +':3000', {title: anime.name + newTitle, type: 'video/mp4'})
+          if(!err.includes("locked"))
+            SendFileToTV(id);
+          return
         }
         console.log('playing ...');
+        share = true;
       });
+
+        client.on('status', function(status) {
+          var err = JSON.stringify(status);
+          console.log("%c TV STATUS: " + err, 'color: green;');
+        });
+
+        client.on('loading', function() {
+          console.log('%c loading tv', 'color: green;');
+        });
+        client.on('playing', function() {
+          console.log('%c playing tv', 'color: green;');
+        });
     }
 
     $(window).on('load', function() {
       dlnacasts.update();
+
+      const server_ = app.listen(3000)
+
+      app.get('/close', function (req, res) {
+        server_.close();
+        res.send("server closed");
+      })  
+
       $("source").attr("src", episodes[episode].video);
 
       if(Object.keys(episodes).length == Number(episode)){
@@ -259,6 +426,53 @@
    <video id="player" style="width: 100%; height: 97.5%"> 
     <source id="source" src="" type="video/mp4"/> 
   </video>
+  <div class="statusToTV" id="statusToTV">
+    <div class="content" id="contentStatusTV">
+      <h2>Aguarde!</h2>
+      <p>Detectamos que este anime não é compativel com sua tv, estaremos relizando a conversão do arquivo para .mp4!</p>
+      <script>
+        $('#contentStatusTV').append("<div class='ui indicating progress' id='progress'>" +
+          "<div class='bar' style='width: 600px'><div class='progress' style='background: transparent; margin-top: 1px'></div></div>" + 
+          "<div class='label' style='position: relative; color: #FFF'></div>" +
+          "</div>" + 
+          "<p id='textStatusTV' style='position: absolute; top: 75%; left: 50%; transform: translate(-50%, -50%)'></p>"
+          );
+      </script>
+      <button onclick="cancelTV()" class="ui orange button" style='position: absolute; bottom: 0; left: 0; margin: 30px;'>Cancelar</button>
+      </div>
+
+    </div>
+    <script>
+        setInterval(function(){
+          $('#textStatusTV').text(statusTV);
+          if(totalSegments > 0){
+            $('.statusToTV').show();
+            var percentual = (segments / totalSegments * 100);
+
+            if(Number(segments) < Number(totalSegments)){
+              statusTV = "(Sua tv está iniciando) Baixando partes do video: [" + segments + " / " + totalSegments + "]";
+            }else{
+              if(Number(segments) >= Number(totalSegments)){
+                if(fileSize >= (downloaded / 1024 / 1024).toFixed(2)){
+                  statusTV = "Iniciando TV";
+                  downloadedIsFinish = true;
+                }else{
+                  statusTV = "Compilando arquivo .mp4"
+                }
+              }
+            }
+
+          $('#progress').progress({
+              percent: percentual
+            });
+          }else{
+            statusTV = "Carregando...";
+            $('.statusToTV').hide();
+          }
+        }, 1000);
+    </script>
+    
+  </div>
   <div class="hideOnPlayer" id="hideOnPlayer">
     <a href="./index.ejs"><div class="exit"><i class="fas fa-times fa-2x"></i></div></a>
     <div class="next-ep" id="next-ep" onclick="nextEpisode()"><i class="fas fa-arrow-right fa-2x"></i></div>

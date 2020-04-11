@@ -1,8 +1,9 @@
 const {app, BrowserWindow, Notification, globalShortcut, Menu} = require('electron');
 const path = require('path');
 const mongoose = require("mongoose");
-const ejse = require('ejs-electron')
-require('electron-reload')(__dirname);
+const ejse = require('ejs-electron');
+var fs = require('fs');
+//require('electron-reload')(__dirname);
 
 mongoose.connect('mongodb+srv://ElectronRead:KPADEGA8iDKNXgKN@animes-vbz1o.mongodb.net/animes', {
   useNewUrlParser: true,
@@ -44,6 +45,16 @@ async function init () {
   ejse.data('ptBR_animes', ptBR_result);
   ejse.data('page', 1);
 
+  fs.readdir(__dirname + "/src/temp", (err, files) => {
+    if (err) throw err;
+  
+    for (const file of files) {
+      fs.unlink(path.join(__dirname + "/src/temp", file), err => {
+        if (err) throw err;
+      });
+    }
+  });
+
   let mainWindow,
     loadingScreen,
     windowParams = {
@@ -56,7 +67,8 @@ async function init () {
       titleBarStyle: "hidden",
       webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
-        nodeIntegration: true
+        nodeIntegration: true,
+        nodeIntegrationInWorker: true
       }
     }; 
 
@@ -70,14 +82,7 @@ async function init () {
   mainWindow.webContents.on('did-finish-load', () => {
     mainWindow.show();
 
-    globalShortcut.register('f5', function() {
-      console.log('f5 is pressed')
-      mainWindow.reload()
-    })
-    globalShortcut.register('CommandOrControl+R', function() {
-      console.log('CommandOrControl+R is pressed')
-      mainWindow.reload()
-    })
+    let contents = mainWindow.webContents
   });
 
   mainWindow.on('closed', function() {
