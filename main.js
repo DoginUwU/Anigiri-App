@@ -6,6 +6,7 @@ var fs = require('fs');
 const Store = require('electron-store');
 const store = new Store();
 require('dotenv').config();
+var home = require("os").homedir();
 //require('electron-reload')(__dirname);
 
 mongoose.connect("mongodb+srv://ElectronRead:KPADEGA8iDKNXgKN@animes-vbz1o.mongodb.net/animes", {
@@ -48,15 +49,18 @@ async function init () {
   ejse.data('ptBR_animes', ptBR_result);
   ejse.data('page', 1);
 
-  if (!fs.existsSync(__dirname + "/src/temp")){
-    fs.mkdirSync(__dirname + "/src/temp");
+  if (!fs.existsSync(home + "/Documents/anigiriDesktop")){
+    fs.mkdirSync(home + "/Documents/anigiriDesktop");
+  }
+  if (!fs.existsSync(home + "/Documents/anigiriDesktop/temp")){
+    fs.mkdirSync(home + "/Documents/anigiriDesktop/temp");
   }
 
-  fs.readdir(__dirname + "/src/temp", (err, files) => {
+  fs.readdir(home + "/Documents/anigiriDesktop/temp", (err, files) => {
     if (err) throw err;
   
     for (const file of files) {
-      fs.unlink(path.join(__dirname + "/src/temp", file), err => {
+      fs.unlink(path.join(home + "/Documents/anigiriDesktop/temp", file), err => {
         if (err) throw err;
       });
     }

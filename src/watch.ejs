@@ -67,6 +67,7 @@
     var ffmpeg = require('ffmpeg');
     const Store = require('electron-store');
     const store = new Store();
+    var home = require("os").homedir();
     var players;
     var animes;
     var client = null;
@@ -168,7 +169,7 @@
     var currentTVID;
 
     function cancelTV(){
-      fs.unlinkSync(__dirname + "/temp/"+ anime._id +".mp4");
+      fs.unlinkSync(home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4");
       segments = 0;
       totalSegments = 0;
       downloaded = 0;
@@ -199,7 +200,7 @@
 
       if(anime.episodes[episode].video.slice(anime.episodes[episode].video.lastIndexOf(".")) == ".m3u8"){
         var fileExists;
-        fs.access(__dirname + "/temp/"+ anime._id +".mp4", fs.F_OK, (err) => {
+        fs.access(home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4", fs.F_OK, (err) => {
           if (err) {
             fileExists = false;
             return;
@@ -209,7 +210,7 @@
 
         if(fileExists){
           setInterval(function(){
-            var stats = fs.statSync(__dirname + "/temp/"+ anime._id +".mp4");
+            var stats = fs.statSync(home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4");
             var fileSizeInBytes = stats["size"];
             fileSize = fileSizeInBytes / 1000000.0;
           }, 500)
@@ -221,11 +222,11 @@
           else{
             downloadedIsFinish = false;
             statusTV = "";
-            return fs.unlinkSync(__dirname + "/temp/"+ anime._id +".mp4");
+            return fs.unlinkSync(home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4");
           }
         }else{
           checkSizeFileStream = setInterval(function(){
-            var stats = fs.statSync(__dirname + "/temp/"+ anime._id +".mp4");
+            var stats = fs.statSync(home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4");
             var fileSizeInBytes = stats["size"];
             fileSize = fileSizeInBytes / 1000000.0;
           }, 500)
@@ -234,7 +235,7 @@
             parser: "m3u8",
             highWaterMark: 100
           });
-            stream.pipe(fs.createWriteStream(__dirname + "/temp/"+ anime._id +".mp4"));
+            stream.pipe(fs.createWriteStream(home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4"));
 
             stream.on('progress', (segment, totalSegments, downloaded) => {
               this.segments = segment.num;
@@ -290,7 +291,7 @@
     function runVideoInternal(id){
       if(share) return;
       app.get('/', async function (req, res) {
-          const path = __dirname + "/temp/"+ anime._id +".mp4";
+          const path = home + "/Documents/anigiriDesktop/temp/"+ anime._id +".mp4";
           const stat = fs.statSync(path)
           const fileSize = stat.size
           const range = req.headers.range

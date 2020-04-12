@@ -51,6 +51,7 @@
     "mongoose": "^5.9.7",
     "node-m3u8-to-mp4": "^2.0.0",
     "node-video-lib": "^2.2.0",
+    "os": "^0.1.1",
     "request": "^2.88.2",
     "upnp-mediarenderer-client": "^1.2.4",
     "upnp-rndr": "^1.2.2",
