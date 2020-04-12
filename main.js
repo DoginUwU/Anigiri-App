@@ -48,6 +48,10 @@ async function init () {
   ejse.data('ptBR_animes', ptBR_result);
   ejse.data('page', 1);
 
+  if (!fs.existsSync(__dirname + "/src/temp")){
+    fs.mkdirSync(__dirname + "/src/temp");
+  }
+
   fs.readdir(__dirname + "/src/temp", (err, files) => {
     if (err) throw err;
   
