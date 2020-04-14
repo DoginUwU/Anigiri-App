@@ -7,7 +7,7 @@ const Store = require('electron-store');
 const store = new Store();
 require('dotenv').config();
 var home = require("os").homedir();
-//require('electron-reload')(__dirname);
+require('electron-reload')(__dirname);
 
 mongoose.connect("mongodb+srv://ElectronRead:KPADEGA8iDKNXgKN@animes-vbz1o.mongodb.net/animes", {
   useNewUrlParser: true,

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Torrent</title>
+  <link rel="stylesheet" href="../photon/css/photon.min.css">
+  <link rel="stylesheet" href="./css/torrent.css">
+  <link rel="stylesheet" href="https://cdn.fluidplayer.com/v2/current/fluidplayer.min.css" type="text/css"/>
+  <script src="https://cdn.fluidplayer.com/v2/current/fluidplayer.min.js"></script>
+</head>
+<body>
+  <%- include("./partials/header") %>
+  <script>
+    var dragDrop = require('drag-drop')
+    var WebTorrent = require('webtorrent')
+
+    var torrent = new WebTorrent()
+    const clipboardy = require('clipboardy');
+
+    const express = require('express')
+    const app = express() ;
+    var ip = require('ip');
+
+    var link = "";
+    var files;
+    var readTorrent = false;
+
+     setInterval(function(){
+        $('.titlebar').appendTo('body');
+        link = clipboardy.readSync();
+        if(link.includes("magnet:?")){
+          runTorrent();
+          readTorrent = true;
+          $("h3").text("Carregando...");
+        }else{
+          readTorrent = false;
+          $("h3").text("Copie um link torrent para começar >w<");
+        }
+        
+        
+      }, 2000);
+      $(document).ready(function() {
+        $('.pusher').appendTo('.container-after-titlebar');
+        $('.titlebar').appendTo('body');
+
+        dragDrop('body', function (files) {
+          torrent.seed(files, function (torrent) {
+            console.log('Client is seeding:', torrent.infoHash)
+            console.log(files);
+          })
+        })
+
+        const server_ = app.listen(3001)
+        app.get('/close', function (req, res) {
+          server_.close();
+          res.send("server closed");
+        })  
+        
+      });
+      
+      function runTorrent(){
+        if(readTorrent) return;
+        readTorrent = true;
+
+        torrent.add(link, function (torrent) {
+          $('.ui.basic.modal').modal('show');
+
+          files = torrent.files;
+
+          for (let index = 0; index < torrent.files.length; index++) {
+            if(torrent.files[index].name.includes(".mp4"))
+              $('.files').append("<a onclick='play("+ index +")'><div class='file ep_" + index + "'><p style='font-size: 15px'>" + torrent.files[index].name + "</p></div></a>");
+            
+          }
+          
+          /*var file = torrent.files.find(function (file) {
+            return file.name.endsWith('.mp4')
+          })
+          console.log(file);*/
+        })
+      }
+
+      function play(index){
+
+        app.get('/', async function (req, res) {
+          const head = {
+              'Content-Type': 'video/mp4',
+            }
+          res.writeHead(200, head)
+          const file = files[index].createReadStream();
+          file.pipe(res);
+        });
+
+        $('.ui.basic.modal').modal('hide');
+
+        $("source").attr("src", 'http://'+ ip.address() +':3001');
+
+        var myFluidPlayer = fluidPlayer("player", {
+          layoutControls: {
+          title: files[index].name,
+          fillToContainer: false,
+          primaryColor: "#6435c9",
+          autoPlay: false,
+          preload: true,
+          playButtonShowing: true,
+          playPauseAnimation: true,
+          playbackRateEnabled: false,
+          mute: false,
+          logo: {
+            imageUrl: '',
+            position: 'top left',
+            clickUrl: null,
+            opacity: 1,
+            mouseOverImageUrl: null,
+            imageMargin: '2px',
+            hideWithControls: false,
+            showOverAds: false
+          },
+          htmlOnPauseBlock: {
+            html: null,
+            height: null,
+            width: null
+          },
+          layoutControls: {
+            captions: {
+                play: 'Play',
+                pause: 'Pause',
+                mute: 'Mute',
+                unmute: 'Unmute',
+                fullscreen: 'Fullscreen',
+                exitFullscreen: 'Exit Fullscreen',
+                miracast: 'Miracast'
+            },
+            title: files[index].name
+          },
+          allowDownload: false,
+          allowTheatre: false,
+          playbackRateEnabled: true,
+          controlBar: {
+            autoHide: true,
+            autoHideTimeout: 3,
+            animated: true
+		      },
+            },
+            
+        });
+
+        $('.fluid_video_wrapper').css("width: 100%; height: 100%;");
+
+        setInterval(function(){
+          $('#fluid_video_wrapper_player').css("width: 100%; height: 100%;");
+        }, 1000)
+
+        myFluidPlayer.on('ended', event => {
+          
+        });
+        myFluidPlayer.on('pause', event => {
+          $('#player_fluid_state_button').css("margin-left", "17px");
+        });
+        
+        myFluidPlayer.on('play', event => {
+          $('#player_fluid_state_button').css("margin-left", "23px");
+        });
+
+      }
+
+      
+  </script>
+  <div class="pusher" id="pusher">
+    <div id="a">
+      <div id='editableDiv' contenteditable='true'>Paste</div>
+      <h3>Copie um link torrent para começar >w<</h3>
+
+      <video id="player" style="width: 100%; height: 100%"> 
+        <source id="source" src="" type="video/mp4" style="width: 100%; height: 100%"/> 
+      </video>
+
+      <div class="ui basic modal torrentView">
+        <div class="header">
+          <div class="files">
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
